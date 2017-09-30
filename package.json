@@ -13,7 +13,7 @@
     "prepublish": "./node_modules/.bin/babel -s inline -d ./dist ./src --source-maps true",
     "test": "npm run lint && npm run spec",
     "lint": "eslint .",
-    "spec": "NODE_ENV=test ./node_modules/.bin/_mocha -r adana-dump --compilers js:babel-core/register -R spec --recursive test/spec/**/*.spec.js"
+    "spec" : "SET NODE_ENV=development ./node_modules/.bin/_mocha -r adana-dump --compilers js:babel-core/register -R spec --recursive test/spec/**/*.spec.js"
   },
   "devDependencies": {
     "adana-cli": "^0.1.1",

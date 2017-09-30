@@ -21,11 +21,17 @@ const getSelLength = (node) => {
  * PostCSS plugin that splits the generated result into multiple results based
  * on number of selectors.
  * @param {Number} size Maximum number of rules in a single file.
+ * @param {Boolean} bySize Split by size.
+ * @param {Boolean} byComment Split by comment.
+ * @param {String} commentPattern Comment pattern to look for.
  * @param {Function} result Options passed to `postcss.toResult()`
  * @returns {Object} `postcss` plugin instance.
  */
 export default postcss.plugin('postcss-chunk', ({
   size = 4000,
+  bySize = true,
+  byComment = true,
+  commentPattern = '! split:',
   result: genResult = () => {
     return {};
   },
@@ -36,9 +42,10 @@ export default postcss.plugin('postcss-chunk', ({
     let chunk;
 
     // Create a new chunk that holds current result.
-    const nextChunk = () => {
+    const nextChunk = (currentChunkName) => {
       count = 0;
       chunk = css.clone({nodes: []});
+      chunk.chunkName = currentChunkName;
       chunks.push(chunk);
     };
 
@@ -46,8 +53,20 @@ export default postcss.plugin('postcss-chunk', ({
     // chunk. Collect the nodes into the current chunk.
     css.nodes.forEach((n) => {
       const selCount = getSelLength(n);
-      if (!chunk || count + selCount > size) {
-        nextChunk();
+      const commentPatternRegEx = new RegExp(commentPattern, 'gi');
+      if (!chunk ||
+          (bySize && (count + selCount > size)) ||
+          (byComment && (n.type === 'comment'
+            && n.text.match(commentPatternRegEx)))) {
+        let currentChunkName = 'chunk';
+        if (typeof n.text === 'string') {
+          const res = n.text.match(commentPatternRegEx);
+          const splitPieces = n.text.split(':');
+          if (res !== null && splitPieces[1] !== undefined){
+            currentChunkName = splitPieces[1];
+          }
+        }
+        nextChunk(currentChunkName);
       }
       chunk.nodes.push(n);
       count += selCount;

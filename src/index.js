@@ -24,13 +24,15 @@ const strip = (str : string) : string => str.replace(/\/$/, '');
  * @param {String} input Name to be interpolated.
  * @returns {Function} Function to do the interpolating.
  */
-const nameInterpolator = (input) => ({file, content, index}) => {
-  const res = interpolateName({
+const nameInterpolator = (input) => ({file, content, index, chunkName}) => {
+  let res = interpolateName({
     context: '/',
     resourcePath: `/${file}`,
   }, input, {
     content,
-  }).replace(/\[part\]/g, index + 1);
+  });
+  res = res.replace(/\[chunkName\]/g, chunkName);
+  res = res.replace(/\[part\]/g, index + 1);
   return res;
 };
 
@@ -67,21 +69,40 @@ export default class CSSSplitWebpackPlugin {
   /**
    * Create new instance of CSSSplitWebpackPlugin.
    * @param {Number} size Maximum number of rules for a single file.
-   * @param {Boolean|String} imports Truish to generate an additional import
-   * asset. When a boolean use the default name for the asset.
+   * @param {Boolean} bySize Split by size
+   * @param {Boolean} byComment Split by comment
+   * @param {String} commentPattern pattern to look for in comments
+   * @param {Boolean|String} imports Truish to generate an additional
+   * import asset. When a boolean use the default name for the asset.
    * @param {String} filename Control the generated split file name.
    * @param {Boolean} preserve True to keep the original unsplit file.
    */
   constructor({
     size = 4000,
+    bySize = true,
+    byComment = true,
+    commentPattern = '! split:',
     imports = false,
-    filename = '[name]-[part].[ext]',
+    filename = '',
     preserve,
   }) {
+    let defaultFilename;
+
+    if (filename.length > 0) {
+      defaultFilename = filename;
+    } else if (byComment) {
+      defaultFilename = '[name]-[chunkName]-[part].[ext]';
+    } else {
+      defaultFilename = '[name]-[part].[ext]';
+    }
+
     this.options = {
       size,
+      bySize,
+      byComment,
+      commentPattern,
       imports: normalizeImports(imports, preserve),
-      filename: nameInterpolator(filename),
+      filename: nameInterpolator(defaultFilename),
       preserve,
     };
   }
@@ -97,11 +118,12 @@ export default class CSSSplitWebpackPlugin {
     const input = asset.sourceAndMap ? asset.sourceAndMap() : {
       source: asset.source(),
     };
-    const name = (i) => this.options.filename({
+    const name = (i, chunkName) => this.options.filename({
       ...asset,
       content: input.source,
       file: key,
       index: i,
+      chunkName: chunkName,
     });
     return postcss([chunk(this.options)]).process(input.source, {
       map: {
@@ -110,10 +132,10 @@ export default class CSSSplitWebpackPlugin {
     }).then((result) => {
       return Promise.resolve({
         file: key,
-        chunks: result.chunks.map(({css, map}, i) => {
+        chunks: result.chunks.map(({css, map, root}, i) => {
           return new SourceMapSource(
             css,
-            name(i),
+            name(i, root.chunkName),
             map.toString()
           );
         }),
