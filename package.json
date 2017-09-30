@@ -1,9 +1,9 @@
 {
-  "name": "css-split-webpack-plugin",
+  "name": "css-magic-split-webpack-plugin",
   "version": "0.2.3",
-  "author": "Izaak Schroeder <izaak.schroeder@gmail.com>",
+  "author": "Jeremiah Martinez <jeremiahmmv2r@gmail.com>",
   "license": "CC0-1.0",
-  "repository": "metalabdesign/css-split-webpack-plugin",
+  "repository": "jeremiahmmartinez/css-magic-split-webpack-plugin",
   "main": "dist/index.js",
   "keywords": [
     "webpack-plugin",
