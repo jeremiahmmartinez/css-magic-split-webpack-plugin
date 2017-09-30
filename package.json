@@ -1,7 +1,7 @@
 {
   "name": "css-magic-split-webpack-plugin",
-  "version": "0.2.3",
-  "author": "Jeremiah Martinez <jeremiahmmv2r@gmail.com>",
+  "version": "0.2.4",
+  "author": "Jeremiah Martinez <jeremiahmmv2@gmail.com>",
   "license": "CC0-1.0",
   "repository": "jeremiahmmartinez/css-magic-split-webpack-plugin",
   "main": "dist/index.js",
