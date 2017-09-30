@@ -4,7 +4,7 @@ Split your CSS for stupid browsers using [webpack] and [postcss].
 
 Using [webpack] to generate your CSS is fun for some definitions of fun. Unfortunately the fun stops when you have a large app and need IE9 support because IE9 will ignore any more than ~4000 selectors in your lovely generated CSS bundle. The solution is to split your CSS bundle smartly into multiple smaller CSS files. Now _you can_.™ Supports source-maps.
 
-The main motivation for adding the split-by-comments feature is facilitate the ability to split vendor styles from your app's styles. This is especially useful when using SASS or LESS preprocessors. Simply use the appropriate loader for your stylesheet and the plugin will take care of the rest. 
+The main motivation for adding the split-by-comments feature is to facilitate the ability to split vendor styles from your app's styles. This is especially useful when using SASS or LESS preprocessors. Simply use the appropriate loader for your stylesheet and the plugin will take care of the rest. 
 
 ## Installation
 
